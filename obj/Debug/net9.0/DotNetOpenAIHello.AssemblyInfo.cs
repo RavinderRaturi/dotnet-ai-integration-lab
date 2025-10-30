@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DotNetOpenAIHello")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a29a0aceb772e7d559d7da8dc4545b8847c436b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f4db6bcf2480c4731730c43b965644fa311cfb7d")]
 [assembly: System.Reflection.AssemblyProductAttribute("DotNetOpenAIHello")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DotNetOpenAIHello")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
