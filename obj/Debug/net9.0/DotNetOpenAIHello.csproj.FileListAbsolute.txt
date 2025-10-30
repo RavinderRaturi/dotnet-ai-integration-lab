@@ -1,0 +1,15 @@
+D:\Work\repo\2.0\dotnet-ai-integration-lab\bin\Debug\net9.0\DotNetOpenAIHello.exe
+D:\Work\repo\2.0\dotnet-ai-integration-lab\bin\Debug\net9.0\DotNetOpenAIHello.deps.json
+D:\Work\repo\2.0\dotnet-ai-integration-lab\bin\Debug\net9.0\DotNetOpenAIHello.runtimeconfig.json
+D:\Work\repo\2.0\dotnet-ai-integration-lab\bin\Debug\net9.0\DotNetOpenAIHello.dll
+D:\Work\repo\2.0\dotnet-ai-integration-lab\bin\Debug\net9.0\DotNetOpenAIHello.pdb
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\DotNetOpenAIHello.GeneratedMSBuildEditorConfig.editorconfig
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\DotNetOpenAIHello.AssemblyInfoInputs.cache
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\DotNetOpenAIHello.AssemblyInfo.cs
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\DotNetOpenAIHello.csproj.CoreCompileInputs.cache
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\DotNetOpenAIHello.sourcelink.json
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\DotNetOpenAIHello.dll
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\refint\DotNetOpenAIHello.dll
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\DotNetOpenAIHello.pdb
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\DotNetOpenAIHello.genruntimeconfig.cache
+D:\Work\repo\2.0\dotnet-ai-integration-lab\obj\Debug\net9.0\ref\DotNetOpenAIHello.dll
