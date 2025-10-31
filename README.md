@@ -1,4 +1,3 @@
-tutorial tone — just concise engineering documentation suitable for a portfolio repo.
 
 # llm_semantic_search_test
 
