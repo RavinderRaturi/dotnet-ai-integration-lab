@@ -14,7 +14,7 @@ class Program
     const string ChatUrl = "https://api.openai.com/v1/chat/completions";
     const string IndexName = "idx:documents";
     const int EmbeddingDim = 1536; // use 3072 if you're using text-embedding-3-large
-    const string RedisConn = "localhost:6379";
+    const string RedisConn = "localhost:6379"; // keep default host:port
 
     static async Task Main()
     {
@@ -29,7 +29,7 @@ class Program
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
         var config = new ConfigurationOptions
         {
-            EndPoints = { "localhost:6379" },
+            EndPoints = { RedisConn },
             AbortOnConnectFail = false,
             ConnectTimeout = 10000,
             SyncTimeout = 20000, // 60s
@@ -46,9 +46,11 @@ class Program
         // Step 1: Define sample docs
         var docs = new Dictionary<string, string>
         {
-            ["1"] = "The company anonymizes all personally identifiable information before processing it with AI systems. Sensitive details such as names or emails are replaced with secure hashes.",
-            ["2"] = "To ensure privacy compliance, the company encrypts all user data both at rest and in transit. Access to personal information is restricted to authorized services.",
-            ["3"] = "Before sending any document to external APIs, the company automatically redacts PII using a custom sanitization process to prevent accidental data exposure."
+            ["1"] = "Last night the bright moon hung low above the city, casting silver light across the rooftops.",
+            ["2"] = "I spent the afternoon tuning my dirt-bike’s suspension for a rocky trail ride next weekend.",
+            ["3"] = "A simple tomato and basil salad is fresh and quick to prepare after a long day.",
+            ["4"] = "Scientists warn that coastal cities are seeing more frequent flooding as sea levels rise.",
+            ["5"] = "The local football team practiced set plays until the sun dipped behind the stadium."
         };
 
         // Step 2: Embed and upsert docs
@@ -62,7 +64,7 @@ class Program
         // Step 3: Query
         Console.Write("\nEnter your query: ");
         var query = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(query)) query = "How does the company handle personally identifiable information?";
+        if (string.IsNullOrWhiteSpace(query)) query = "off-road bike suspension problems";
 
         var qEmbed = await GetEmbedding(http, query);
         Console.WriteLine($"DEBUG: query embedding length = {qEmbed.Length}. Expected DIM = {EmbeddingDim}");
@@ -126,7 +128,7 @@ class Program
         knnExpr,
         "PARAMS", "2", "BLOB", (RedisValue)vecBytes,   // pass binary param safely
         "DIALECT", "2",
-        "RETURN", "1", "text_field",                    // only return text_field (not vector_field)
+       "RETURN", "2", "text_field", "score",           // return text_field and score (score guaranteed in fields-array)
         "SORTBY", "score", "ASC",
         "LIMIT", "0", k.ToString()
         };
@@ -147,24 +149,59 @@ class Program
         sw.Stop();
         Console.WriteLine($"FT.SEARCH elapsed={sw.ElapsedMilliseconds} ms");
 
+        var results = ParseRedisSearchResults(raw);
+        return results;
+    }
+    static List<(string Id, string Text, float Score)> ParseRedisSearchResults(RedisResult raw)
+    {
         var results = new List<(string, string, float)>();
         if (raw.IsNull) return results;
 
         var arr = (RedisResult[])raw;
         if (arr.Length < 1) return results;
 
-        // arr[0] is total hits, then pairs: id, fields-array
         int idx = 1;
         while (idx < arr.Length)
         {
-            var id = (string)arr[idx++];
-            var fields = (RedisResult[])arr[idx++];
+            if (idx >= arr.Length) break;
+
+            var id = arr[idx++].ToString();
+            if (string.IsNullOrEmpty(id)) break;
+
+            float score = float.NaN;
+            RedisResult[] fields;
+
+            // Handle optional score element
+            if (idx < arr.Length)
+            {
+                var next = arr[idx];
+                if (next.Type == ResultType.BulkString ||
+                    next.Type == ResultType.SimpleString ||
+                    next.Type == ResultType.Integer)
+                {
+                    var s = next.ToString();
+                    if (float.TryParse(s, out var parsedScore))
+                    {
+                        score = parsedScore;
+                        idx++;
+                    }
+                }
+            }
+
+            if (idx >= arr.Length) break;
+
+            var fieldCandidate = arr[idx++];
+            if (fieldCandidate.Type == ResultType.MultiBulk)
+            {
+                fields = (RedisResult[])fieldCandidate;
+            }
+            else
+            {
+                fields = new[] { fieldCandidate };
+            }
 
             string text = "";
-            float score = float.NaN;
-
-            // fields is alternating key/value pairs
-            for (int i = 0; i < fields.Length; i += 2)
+            for (int i = 0; i + 1 < fields.Length; i += 2)
             {
                 var fname = fields[i].ToString();
                 var fval = fields[i + 1];
@@ -172,15 +209,9 @@ class Program
                 if (fname == "text_field") text = fval.ToString();
                 else if (fname == "score")
                 {
-                    // score may be returned as a string numeric. Try parse defensively
                     if (!float.TryParse(fval.ToString(), out score))
                     {
-                        // sometimes score comes as bytes or Redis double; attempt other conversions
-                        try
-                        {
-                            score = Convert.ToSingle(fval);
-                        }
-                        catch { score = float.NaN; }
+                        try { score = Convert.ToSingle(fval); } catch { score = float.NaN; }
                     }
                 }
             }
@@ -202,8 +233,9 @@ class Program
                 new { role = "system", content = "You are an assistant that answers using only provided context." },
                 new { role = "user", content = $"Context:\n{context}\n\nQuestion: {question}" }
             },
-            max_tokens = 300,
-            temperature = 0.1
+            max_tokens = 350,
+            temperature = 0.1,
+            top_p = 0.9
         };
         var json = JsonSerializer.Serialize(payload);
         var resp = await http.PostAsync(ChatUrl, new StringContent(json, Encoding.UTF8, "application/json"));

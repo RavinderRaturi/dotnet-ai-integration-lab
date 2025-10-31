@@ -1,166 +1,165 @@
 
-# llm_semantic_search_test
+# dotnet-ai-integration-lab
 
-## Purpose
-This repository contains a compact, reproducible set of experiments to validate semantic retrieval using a Redis vector store and to observe how generation parameters (temperature, top_p, max_tokens) affect model output. The materials are presented as test assets and a concise experiment plan intended for reproducible validation and demonstration of engineering quality.
+.NET projects demonstrating integration with **OpenAI APIs** and **Redis Stack** for vector search and AI-based document retrieval.
 
-## Repository layout (suggested)
+---
 
+## 🧩 Project Overview
 
-llm_semantic_search_test/
-├── ChatClient.cs // .NET wrapper for chat calls (minimal, production-minded)
-├── README.md // This file
-└── data/
-├── documents.json // Document corpus (D1–D5)
-└── queries.json // Query set (Q1–Q5)
+### DotNetOpenAIHello
+Simple .NET console app demonstrating a direct call to OpenAI's Chat Completion API.
 
+### RedisDemo
+Console app that:
+- Connects to Redis Stack (`localhost:6379`)
+- Creates a RediSearch vector index (`idx:documents`)
+- Generates embeddings using OpenAI’s API
+- Stores and searches embeddings in Redis using `FT.SEARCH`
 
-## Document corpus
-Use the following five documents as the indexed corpus. They are intentionally short to make similarity behavior clear.
+---
 
-**documents.json**
-```json
-[
-  { "id": "D1", "text": "Last night the bright moon hung low above the city, casting silver light across the rooftops." },
-  { "id": "D2", "text": "I spent the afternoon tuning my dirt-bike’s suspension for a rocky trail ride next weekend." },
-  { "id": "D3", "text": "A simple tomato and basil salad is fresh and quick to prepare after a long day." },
-  { "id": "D4", "text": "Scientists warn that coastal cities are seeing more frequent flooding as sea levels rise." },
-  { "id": "D5", "text": "The local football team practiced set plays until the sun dipped behind the stadium." }
-]
+## ⚙️ Prerequisites
 
-Query set
+- **Operating System:** Windows 11 (tested)  
+  macOS/Linux: should work with equivalent commands (not tested)
+- **Required Software:**
+  - [.NET SDK 9.0+](https://dotnet.microsoft.com/download)
+  - [Docker Desktop](https://www.docker.com/products/docker-desktop)
+  - A valid **OpenAI API key**
 
-Use these queries to validate retrieval behavior and measure similarity scores.
+---
 
-queries.json
+## 🔑 Environment Variable Setup
 
-[
-  { "id": "Q1", "query": "silver moonlight over houses" },
-  { "id": "Q2", "query": "off-road bike suspension problems" },
-  { "id": "Q3", "query": "easy dinner with tomatoes and basil" },
-  { "id": "Q4", "query": "rising seas cause floods in coastal towns" },
-  { "id": "Q5", "query": "concert lights and cheering crowd" }
-]
+### Windows PowerShell
 
-Expected retrieval matches
-Query	Expected top-1	Rationale
-Q1	D1	Semantic match on moon / rooftops / silver light
-Q2	D2	Motorcycle / dirt-bike / suspension semantics
-Q3	D3	Cooking / tomato / basil / quick meal
-Q4	D4	Sea-level rise / coastal flooding semantics
-Q5	D5 (weak)	Stadium / crowd context; used as a noise test for false positives
-Retrieval evaluation procedure (concise)
+    powershell
+    $env:OPENAI_API_KEY = "sk-your-api-key"
+    
+    
+    macOS/Linux (untested)
+    export OPENAI_API_KEY="sk-your-api-key"
 
-Generate embeddings for every document using the same embedding model and insert into Redis (or equivalent vector store).
+Start Redis Stack (via Docker)
 
-For each query, compute its embedding and perform a top-3 similarity search.
+   
 
-Record top-3 document ids and similarity scores.
+    Windows PowerShell
+    docker run -d --name redis-stack -p 6379:6379 redis/redis-stack:latest
+        
+    macOS/Linux (untested)
+    docker run -d --name redis-stack -p 6379:6379 redis/redis-stack:latest
 
-Validate whether top-1 equals expected match; record confidence per thresholds below.
+🔍 Verify Redis is Running
+Check container status
 
-Confidence thresholds:
+    docker ps --filter name=redis-stack
 
-High ≥ 0.80
+Check Redis connection
 
-Medium 0.65–0.79
+    docker exec -it redis-stack redis-cli PING
 
-Low < 0.65
+# Expected output: PONG
 
-Notes:
+Check existing indexes
 
-Use the same embedding model for corpus and queries.
+    docker exec -it redis-stack redis-cli FT._LIST
 
-Normalize vectors consistently if using cosine similarity.
+View container logs
 
-Generation experiments (post-retrieval)
+    docker logs redis-stack --tail 100
 
-After retrieving the best-matching document, run LLM generation experiments to observe how parameters affect output and token usage.
+Stop Redis container
 
-Base prompt
+    docker stop redis-stack
 
-System: You are a concise assistant.
-User: Summarize the following document in one paragraph:
-[DOCUMENT_TEXT]
+Remove Redis container
 
+    docker rm redis-stack
 
-Experiment matrix
+🚀 Run the Applications
+Run Redis Demo
 
-Label	temperature	top_p	max_tokens	Expected behavior
-A	0.0	0.1	60	Deterministic, concise summary, reproducible
-B	0.6	0.9	150	Balanced phrasing, moderate length, mild variation
-C	1.0	0.95	350	Creative/extended output, higher variation and token cost
+    cd RedisDemo
+    dotnet run
 
-Record for each run:
 
-Retrieval: query id, retrieved doc id(s), similarity scores (top-3).
+What it does:
 
-Generation: parameter set (temperature/top_p/max_tokens), returned text, token usage (input / output / total).
+Connects to Redis on localhost:6379
 
-A short judgment: matches retrieved doc (yes/partial/no) and notes on hallucination or omissions.
+Ensures index idx:documents exists
 
-Data collection template
+Embeds sample documents
 
-Use a CSV or table with these columns for reproducibility and inspection:
+Prompts for a query and returns semantic search results
 
-Query	RetrievedDoc	SimScore	Temp	Top_p	MaxTokens	InputTokens	OutputTokens	TotalTokens	Notes
+Run OpenAI Hello Demo
 
-Example row:
-| Q1 | D1 | 0.82 | 0.0 | 0.1 | 60 | 148 | 57 | 205 | Deterministic, factual |
+    cd DotNetOpenAIHello
+    dotnet run
 
-Implementation notes (concise)
 
-Retrieval is embedding + similarity. Temperature/top_p/max_tokens do not affect embedding similarity. They only affect the generation stage after retrieval.
+What it does:
 
-To minimize hallucination, include an instruction in the prompt such as: "Only use the text below to answer. If the requested information is not present, reply 'insufficient information'."
+Sends a simple prompt to the OpenAI API
 
-Log and persist both embedding insertion and query results to enable reproducible analysis.
+Prints the model’s response in the console
 
-Token accounting and cost
+🧰 Useful Redis Commands
 
-Track per-call token counts provided by the LLM API (input/prompt, output/completion, total).
+    List indexes
+    docker exec -it redis-stack redis-cli FT._LIST
+    
+    Show index info
+    docker exec -it redis-stack redis-cli FT.INFO idx:documents
+    
+    Drop index and delete documents
+    docker exec -it redis-stack redis-cli FT.DROPINDEX idx:documents DD
+    
+    Ping Redis
+    docker exec -it redis-stack redis-cli PING
+    
+    Monitor Redis activity (debugging)
+    docker exec -it redis-stack redis-cli MONITOR
 
-Approximation: 1 token ≈ 4 characters (English) — use official tokenizer where possible for precise accounting.
+🗂️ Repository Structure
 
-Maintain a short-run cost estimate by multiplying token totals by the provider's cost per 1k tokens.
+    dotnet-ai-integration-lab/
+    ├── DotNetOpenAIHello/
+    │   ├── DotNetOpenAIHello.csproj
+    │   └── Program.cs
+    ├── RedisDemo/
+    │   ├── RedisDemo.csproj
+    │   └── Program.cs
+    └── README.md
 
-Console logging example (C#-style)
+🧹 Cleanup Commands
 
-// usage: object returned by the LLM SDK with token counts
-Console.WriteLine($"PromptTokens: {usage.PromptTokens}, CompletionTokens: {usage.CompletionTokens}, TotalTokens: {usage.TotalTokens}");
+    Stop Redis
+    docker stop redis-stack
+    
+    Remove Redis
+    docker rm redis-stack
+    
+    Remove all stopped containers (optional)
+    docker container prune
 
-Validation checklist
+🧾 Notes
 
- All documents inserted with embeddings and verified in Redis.
+All commands are verified on Windows 11 + PowerShell.
 
- Queries produce expected top-1 matches at medium/high confidence for Q1–Q4.
+macOS/Linux equivalents are provided but not tested.
 
- Q5 demonstrates low-confidence/ambiguous match (noise test).
+The Redis container runs on localhost:6379.
 
- Generation experiments executed for each query/document pair and logged.
+The .NET apps assume Redis is available locally; update the connection string in code if running elsewhere.
 
- Notes captured on how parameter changes affected length, style, and token cost.
+The OpenAI API key must be available in the environment before starting the applications.
 
- Rate-limit handling validated (e.g., backoff+retry after 429).
+License
+This project is for educational and prototyping use.
 
-Observations (fill in after runs)
-
-Provide concise bullet findings here after running tests. Example fields to populate:
-
-Retrieval accuracy summary (per-query similarity stats).
-
-Token consumption comparison across experiments A/B/C.
-
-Examples of deterministic vs creative outputs and any hallucination cases.
-
-Any issues (embedding mismatches, indexing errors, rate-limit incidents).
-
-How this artifact is intended to be read
-
-This repository documents a reproducible validation harness and experiments; it is written for a technical reviewer or peer. The primary signal is demonstrable evidence of reliability in retrieval, disciplined parameter experimentation, and clear token/cost accounting.
-
-Minimal troubleshooting pointers
-
-If retrieval returns unexpected high-similarity results: confirm identical embedding model for documents and queries, check vector normalization, verify document insertion succeeded.
-
-If generation hallucinates despite retrieved context: tighten prompt instructions, reduce temperature/top_p, or reduce the retrieval-to-generation context size.
+---
+ 
