@@ -426,3 +426,4 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/LocalAIChatBotLLamaSharp/phi-2.Q2_K.gguf
