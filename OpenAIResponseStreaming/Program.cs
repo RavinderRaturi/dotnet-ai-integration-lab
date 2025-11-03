@@ -20,7 +20,7 @@ var messages = new List<ChatMessage>();
 //{
 //    Console.WriteLine("You: ");
 //    var input = Console.ReadLine();
-//    if(string.IsNullOrWhiteSpace(input))
+//    if (string.IsNullOrWhiteSpace(input))
 //        break;
 
 //    messages.Add(new UserChatMessage(input));
@@ -37,6 +37,10 @@ var messages = new List<ChatMessage>();
 //    Console.WriteLine(aiRespone);
 //    Console.WriteLine();
 //    messages.Add(new AssistantChatMessage(aiRespone));
+
+
+//    //Token usage display
+//    Console.WriteLine($"Total tokens: {response.Value.Usage.TotalTokenCount}");
 
 //}
 
@@ -60,12 +64,13 @@ while (true)
             Console.Write(c.Text);
             sb.Append(c.Text);
         }
+
     }
 
     messages.Add(new AssistantChatMessage(sb.ToString()));
     Console.WriteLine();
+    //Cant implement token usage display with streaming yet. look for third party libraries or wait for official support.
 }
-
 
 
 
