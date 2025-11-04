@@ -1,0 +1,83 @@
+﻿@model HomeIndexViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row gx-5">
+    <div class="col-6">
+        <h3>Transform your picture in Ghibli Studio style.</h3>
+        <p style="font-style:italic; background-color:cadetblue;">OpenAI account needs to be verified before running this POC</p>
+
+        <form enctype="multipart/form-data" asp-action="Index">
+            <div class="mb-3">
+                <label asp-for="File" class="form-label"></label>
+                <input type="file" asp-for="File" class="form-control"
+                       onchange="displayPreview(event)" />
+
+                <img id="imagePreview" class="img-fluid" style="display: none;" />
+
+
+            </div>
+
+            <button type="button" onclick="sendImage()" class="btn btn-primary">Transform</button>
+        </form>
+    </div>
+    <div class="col-6">
+        <h3>Transformed Image</h3>
+
+        <div id="loading" style="display: none">
+            <img class="mt-2 mb-2"
+                 style="width: 200px;" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" />
+        </div>
+
+        <div id="container-transformed-image" style="display: none">
+            <img class="img-fluid" id="transformed-image" />
+        </div>
+
+    </div>
+</div>
+
+
+
+@section scripts {
+    <script>
+        function displayPreview(event){
+            const input = event.target;
+            const imagePreview = document.getElementById('imagePreview');
+
+            if (input.files && input.files[0]) {
+                const imageURL = URL.createObjectURL(input.files[0]);
+                imagePreview.src = imageURL;
+                imagePreview.style.display = "block";
+            }
+        }
+
+        async function sendImage(){
+
+            const loading = document.getElementById("loading");
+            loading.style.display = "block";
+
+            const input = document.querySelector('#File');
+
+            const data = new FormData();
+            data.append('file', input.files[0]);
+
+            const respuesta = await fetch('/Home', {
+              method: 'POST',
+              body: data
+            });
+
+            const fileName = await respuesta.text();
+            const fileURL = "/imagenes/" + fileName;
+
+            const image = document.getElementById('transformed-image');
+            image.src = fileURL;
+
+            const transformedImageDiv = document.getElementById('container-transformed-image');
+            loading.style.display = "none";
+            transformedImageDiv.style.display = "block";
+        }
+
+    </script>
+}
