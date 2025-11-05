@@ -58,7 +58,7 @@ class Program
         {
             var embedding = await GetEmbedding(http, kv.Value);
             await UpsertDoc(db, kv.Key, kv.Value, embedding);
-            Console.WriteLine($"📥 Upserted doc:{kv.Key}");
+            Console.WriteLine($"Upserted doc:{kv.Key}");
         }
 
         // Step 3: Query
@@ -71,13 +71,13 @@ class Program
 
         var topDocs = await SearchTopK(db, qEmbed, k: 2);
 
-        Console.WriteLine("\n🔍 Top matches:");
+        Console.WriteLine("\nTop matches:");
         foreach (var d in topDocs)
             Console.WriteLine($" - {d.Id}: score {d.Score:F4}");
 
         var context = string.Join("\n---\n", topDocs.Select(x => x.Text));
         var answer = await GetChatAnswer(http, query, context);
-        Console.WriteLine("\n🧠 Final Answer:\n" + answer);
+        Console.WriteLine("\nFinal Answer:\n" + answer);
 
         await mux.CloseAsync();
     }
