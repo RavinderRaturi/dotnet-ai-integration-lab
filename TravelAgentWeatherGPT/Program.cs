@@ -10,7 +10,7 @@ class Program
         // load .env if exists
         Env.Load();
 
-        var lesson = args.Length > 0 ? args[0] : "5";
+        var lesson = args.Length > 0 ? args[0] : "3";
         Console.WriteLine($"Running Lesson {lesson} example");
 
         var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";

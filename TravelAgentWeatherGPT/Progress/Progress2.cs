@@ -15,7 +15,7 @@ public static class Progress2
                 "You help travelers plan by checking real-time weather.",
                 " When asked about weather or packing, call the get_weather_forecast tool.",
                 " Make sure you have access to real-time weather data to make your recommendations. "),
-            model: "gpt-5"
+            model: "GPT‑4o Mini"
         );
 
         var city = "Dehradun";

@@ -19,7 +19,7 @@ public static class Progress5
         var tripAgent = new AgentDefinition(
             "Trip Coach",
             "You coordinate weather, web search, and packing. For any ambiguous place, ask clarifying questions. Provide step-by-step plan and prioritized packing list.",
-            "gpt-5",
+            "GPT‑4o Mini",
             modelSettings
         );
 

@@ -23,7 +23,7 @@ public static class Progress3
                 " and you recommend clothes to pack and activities to do while visiting the city.",
                 " If web search is needed to find activities, use the web_search tool.",
                 " Be concise and prioritize solo-friendly options."),
-            model: "gpt-5",
+            model: "GPT‑4o Mini",
             ms: modelSettings
         );
 

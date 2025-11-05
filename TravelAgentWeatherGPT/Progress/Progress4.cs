@@ -19,7 +19,7 @@ public static class Progress4
         var tripAgent = new AgentDefinition(
             "Trip Coach",
             "You are a trip planning assistant. Prioritize safety, timing, and solo traveler needs. Check live weather first, then find activities and estimate durations. Use web_search if local events are required.",
-            "gpt-5",
+            "GPT‑4o Mini",
             modelSettings
         );
 
