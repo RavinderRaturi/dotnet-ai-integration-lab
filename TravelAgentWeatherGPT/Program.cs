@@ -16,7 +16,7 @@ class Program
         var openAiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") ?? "";
         Console.WriteLine($"OPENAI_API_KEY set: {!string.IsNullOrEmpty(openAiKey)}");
         Console.WriteLine($"WEATHER_API_KEY set: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("WEATHER_API_KEY"))}");
-  //      Console.WriteLine($"BING_API_KEY set: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BING_API_KEY"))}");
+        Console.WriteLine($"BING_API_KEY set: {!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BING_API_KEY"))}");
 
         return lesson switch
         {

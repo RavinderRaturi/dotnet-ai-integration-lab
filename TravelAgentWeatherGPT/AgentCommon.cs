@@ -123,7 +123,7 @@ namespace AgentsExamples.Common
       string systemPrompt,
       string userPrompt,
       string apiKey,
-      string model = "gpt-5",
+      string model = "GPT‑4o Mini",
       ModelSettings? modelSettings = null)
         {
             if (string.IsNullOrWhiteSpace(apiKey))
